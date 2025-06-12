@@ -111,13 +111,42 @@ export const getMyEntries = async (req, res) => {
   }
 };
 
+// // GET /entries/search?name=xyz&from=yyyy-mm-dd&to=yyyy-mm-dd
+// export const searchEntries = async (req, res) => {
+//   try {
+//     const { name, from, to } = req.query;
+//     const query = {};
+
+//     if (name) query.customerName = new RegExp(name, 'i');
+//     if (from || to) {
+//       query.createdAt = {};
+//       if (from) query.createdAt.$gte = new Date(from);
+//       if (to) query.createdAt.$lte = new Date(to);
+//     }
+
+//     const entries = await Entry.find(query).populate('createdBy', 'name number role');
+//     res.json(entries);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Search failed' });
+//   }
+// };
+
 // GET /entries/search?name=xyz&from=yyyy-mm-dd&to=yyyy-mm-dd
 export const searchEntries = async (req, res) => {
   try {
     const { name, from, to } = req.query;
     const query = {};
 
-    if (name) query.customerName = new RegExp(name, 'i');
+    // Search by customerName or number (partial, case-insensitive)
+    if (name) {
+      const regex = new RegExp(name, 'i'); // case-insensitive
+      query.$or = [
+        { customerName: regex },
+        { number: regex }
+      ];
+    }
+
+    // Date filter (createdAt range)
     if (from || to) {
       query.createdAt = {};
       if (from) query.createdAt.$gte = new Date(from);
@@ -127,9 +156,11 @@ export const searchEntries = async (req, res) => {
     const entries = await Entry.find(query).populate('createdBy', 'name number role');
     res.json(entries);
   } catch (err) {
+    console.error('Search failed:', err);
     res.status(500).json({ message: 'Search failed' });
   }
 };
+
 
 // GET /entries/byUser/:id
 export const getEntriesByUser = async (req, res) => {
