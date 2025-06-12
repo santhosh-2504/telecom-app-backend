@@ -107,3 +107,14 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch users' });
   }
 };
+
+// POST /api/users/push-token
+export const updatePushToken = async (req, res) => {
+  try {
+    const { pushToken } = req.body;
+    await User.findByIdAndUpdate(req.user.id, { pushToken });
+    res.json({ message: 'Push token saved successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to save push token' });
+  }
+};

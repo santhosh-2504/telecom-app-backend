@@ -23,7 +23,10 @@ const userSchema = new mongoose.Schema({
   entries: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Entry'
-  }]
+  }],
+  pushToken: {
+    type: String
+  }
 }, {
   timestamps: true
 });

@@ -76,8 +76,45 @@
 // };
 
 import Entry from '../models/Entry.js';
+import axios from 'axios'; // <--- Make sure axios is installed
 
+// Helper function to send notification
+const sendPushNotification = async (expoPushToken, title, body) => {
+  try {
+    await axios.post('https://exp.host/--/api/v2/push/send', {
+      to: expoPushToken,
+      sound: 'default',
+      title,
+      body
+    });
+  } catch (error) {
+    console.error('Notification Error:', error.message);
+  }
+};
 // POST /entries
+// export const createEntry = async (req, res) => {
+//   try {
+//     const { type, fromProvider, toProvider, simProvider, rechargeAmount, price, number, customerName } = req.body;
+
+//     const newEntry = await Entry.create({
+//       type,
+//       fromProvider,
+//       toProvider,
+//       simProvider,
+//       rechargeAmount,
+//       price,
+//       number,
+//       customerName,
+//       createdBy: req.user.id
+//     });
+
+//     res.status(201).json(newEntry);
+//   } catch (err) {
+//     console.error('Entry creation failed:', err);
+//     res.status(500).json({ message: 'Entry creation failed' });
+//   }
+// };
+
 export const createEntry = async (req, res) => {
   try {
     const { type, fromProvider, toProvider, simProvider, rechargeAmount, price, number, customerName } = req.body;
@@ -93,6 +130,16 @@ export const createEntry = async (req, res) => {
       customerName,
       createdBy: req.user.id
     });
+
+    // Notify Admin
+    const admin = await User.findOne({ role: 'admin', pushToken: { $ne: null } });
+    if (admin?.pushToken) {
+      await sendPushNotification(
+        admin.pushToken,
+        '📲 New SIM Entry',
+        `A new ${type} entry was created for ${customerName}`
+      );
+    }
 
     res.status(201).json(newEntry);
   } catch (err) {
