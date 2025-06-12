@@ -112,9 +112,34 @@ export const getAllUsers = async (req, res) => {
 export const updatePushToken = async (req, res) => {
   try {
     const { pushToken } = req.body;
-    await User.findByIdAndUpdate(req.user.id, { pushToken });
-    res.json({ message: 'Push token saved successfully' });
+    
+    console.log('📱 Updating push token for user:', req.user.id);
+    console.log('📱 Push token:', pushToken);
+    
+    if (!pushToken) {
+      return res.status(400).json({ message: 'Push token is required' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id, 
+      { pushToken }, 
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('✅ Push token updated successfully for user:', req.user.id);
+    res.json({ 
+      message: 'Push token saved successfully',
+      pushToken: updatedUser.pushToken 
+    });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to save push token' });
+    console.error('❌ Failed to save push token:', err);
+    res.status(500).json({ 
+      message: 'Failed to save push token',
+      error: err.message 
+    });
   }
 };
