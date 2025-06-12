@@ -76,6 +76,7 @@
 // };
 
 import Entry from '../models/Entry.js';
+import User from '../models/User.js';
 import axios from 'axios'; // <--- Make sure axios is installed
 
 // Helper function to send notification
