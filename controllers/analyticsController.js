@@ -76,7 +76,7 @@ export const getAnalytics = async (req, res) => {
       { $limit: 10 }
     ]);
 
-    // Daily entry trends (last 30 days)
+    // Daily entry trends (last 30 days) - FIXED FOR IST
     const dailyTrends = await Entry.aggregate([
       {
         $match: {
@@ -88,7 +88,8 @@ export const getAnalytics = async (req, res) => {
           _id: {
             $dateToString: {
               format: '%Y-%m-%d',
-              date: '$createdAt'
+              date: '$createdAt',
+              timezone: 'Asia/Kolkata'  // IST timezone
             }
           },
           count: { $sum: 1 },
@@ -153,7 +154,7 @@ export const getAnalytics = async (req, res) => {
       createdAt: { $gte: lastMonth, $lt: currentMonth }
     });
 
-    // Peak hours analysis
+    // Peak hours analysis - FIXED FOR IST
     const peakHours = await Entry.aggregate([
       {
         $match: {
@@ -162,7 +163,12 @@ export const getAnalytics = async (req, res) => {
       },
       {
         $group: {
-          _id: { $hour: '$createdAt' },
+          _id: { 
+            $hour: {
+              date: '$createdAt',
+              timezone: 'Asia/Kolkata'  // IST timezone
+            }
+          },
           count: { $sum: 1 }
         }
       },
@@ -230,7 +236,7 @@ export const getWorkerAnalytics = async (req, res) => {
       { $group: { _id: '$type', count: { $sum: 1 } } }
     ]);
 
-    // Daily performance for this worker
+    // Daily performance for this worker - FIXED FOR IST
     const dailyPerformance = await Entry.aggregate([
       {
         $match: {
@@ -243,7 +249,8 @@ export const getWorkerAnalytics = async (req, res) => {
           _id: {
             $dateToString: {
               format: '%Y-%m-%d',
-              date: '$createdAt'
+              date: '$createdAt',
+              timezone: 'Asia/Kolkata'  // IST timezone
             }
           },
           count: { $sum: 1 }
