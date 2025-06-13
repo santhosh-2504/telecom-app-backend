@@ -80,18 +80,21 @@ import User from '../models/User.js';
 import axios from 'axios'; // <--- Make sure axios is installed
 
 // Helper function to send notification
+// 
+
 const sendPushNotification = async (expoPushToken, title, body) => {
   try {
     await axios.post('https://exp.host/--/api/v2/push/send', {
       to: expoPushToken,
-      sound: 'default',
+      sound: 'notification-sound.wav', // 👈 This must match the asset filename
       title,
-      body
+      body,
     });
   } catch (error) {
-    console.error('Notification Error:', error.message);
+    console.error('Notification Error:', error?.response?.data ?? error.message);
   }
 };
+
 // POST /entries
 // export const createEntry = async (req, res) => {
 //   try {
